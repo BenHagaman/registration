@@ -2,9 +2,9 @@
 
 class ACMConfigurationVerifier extends CI_Controller {
 
-  private function db_permissions_okay() {
+  private function db_permissions_okay($user) {
     $acl_output = array();
-    exec('/usr/bin/getfacl /srv/dev_www/sites/kerzn002/htdocs/registration/application/config/database.php', $acl_output);
+    exec("/usr/bin/getfacl /srv/dev_www/sites/$user/htdocs/registration/application/config/database.php", $acl_output);
 
     $badacl = false;
 
@@ -66,6 +66,17 @@ class ACMConfigurationVerifier extends CI_Controller {
     }
   }
 
+  private function get_user_from_host() {
+      $matches = array();
+
+      if( preg_match("/^(.+)\.dev\.acm\.umn\.edu$/", $_SERVER['SERVER_NAME'], $matches) == 1) {
+        return $matches[1];
+      }
+      else {
+        return null;
+      }
+  }
+
   # This makes sure that the user has setup their environment properly before beginning to develop.
   public function check_getting_started() {
     $CI =& get_instance();
@@ -74,9 +85,19 @@ class ACMConfigurationVerifier extends CI_Controller {
     $message = "Before working on this application, you need to setup your environment.  Please read the README.md file.  Here's what you still need to change:<br/><ul>";
     $fail = false;
 
+    $acm_user = $this->get_user_from_host();
 
-    if( ! is_readable('application/config/database.php') or ! $this->db_permissions_okay() ) {
-      $message .= "<li>Your registration/application/config/database.php file must be configured properly!  Please see the README.</li>";
+    if(is_null($acm_user)) {
+      $message .= "<li>Please run this from your ACM development space or disable the validation hooks.</li>";
+      $fail = true;
+    }
+
+    if(is_null($acm_user)) {
+      $message .= "<li>Unable to locate your database.php file.  Make sure you application is installed properly in the ACM development space.</li>";
+    }
+    elseif( ! is_readable('application/config/database.php') or ! $this->db_permissions_okay($acm_user) ) {
+      $message .= "<li>Your registration/application/config/database.php file must be configured properly!  Please make sure to <br/><code>chmod 600 database.php; setfacl -m u:www-data:r database.php;</code></li>";
+      $fail = true;
     }
 
     if($CI->db->username == 'CHANGEME') {
