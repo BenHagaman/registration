@@ -4,10 +4,16 @@ class ACMConfigurationVerifier extends CI_Controller {
 
   private function db_permissions_okay($user) {
     $acl_output = array();
-    exec("/usr/bin/getfacl /srv/dev_www/sites/$user/htdocs/registration/application/config/database.php", $acl_output);
+    $db_path = "/srv/dev_www/sites/$user/htdocs/registration/application/config/database.php";
+
+    exec("/usr/bin/getfacl $db_path", $acl_output);
+    $t = posix_getgrgid(filegroup($db_path));
+
+    if($t['name'] != $user) {
+      return false;
+    }
 
     $badacl = false;
-
     foreach($acl_output as $line) {
       $matches = array();
 
@@ -26,7 +32,7 @@ class ACMConfigurationVerifier extends CI_Controller {
 
         /* group should have no permissions */
         case (preg_match("/^group::(.*)$/", $line, $matches) == 1):
-          if($matches[1] != "---") {
+          if($matches[1] != "r--") {
             $badacl = true;
           }
         break;
@@ -96,7 +102,7 @@ class ACMConfigurationVerifier extends CI_Controller {
       $message .= "<li>Unable to locate your database.php file.  Make sure you application is installed properly in the ACM development space.</li>";
     }
     elseif( ! is_readable('application/config/database.php') or ! $this->db_permissions_okay($acm_user) ) {
-      $message .= "<li>Your registration/application/config/database.php file must be configured properly!  Please make sure to <br/><code>chmod 600 database.php; setfacl -m u:www-data:r database.php;</code></li>";
+      $message .= "<li>Your registration/application/config/database.php file must be configured properly!  Please make sure to <br/><code> chown \$ACM_USER:\$ACM_USER chmod 640 database.php; setfacl -m u:www-data:r database.php;</code></li>";
       $fail = true;
     }
 
