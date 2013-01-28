@@ -102,7 +102,7 @@ class ACMConfigurationVerifier extends CI_Controller {
       $message .= "<li>Unable to locate your database.php file.  Make sure you application is installed properly in the ACM development space.</li>";
     }
     elseif( ! is_readable('application/config/database.php') or ! $this->db_permissions_okay($acm_user) ) {
-      $message .= "<li>Your registration/application/config/database.php file must be configured properly!  Please make sure to <br/><code> chown \$ACM_USER:\$ACM_USER chmod 640 database.php; setfacl -m u:www-data:r database.php;</code></li>";
+      $message .= "<li>Your registration/application/config/database.php file must be configured properly!  Please make sure to <br/><code> chown \$ACM_USER:\$ACM_USER chmod 640 database.php;</code></li>";
       $fail = true;
     }
 
