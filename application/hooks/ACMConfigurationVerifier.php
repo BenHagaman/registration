@@ -130,11 +130,16 @@ class ACMConfigurationVerifier extends CI_Controller {
       $message .= "<li>Your log path should be set to \"/srv/dev_www/log/YOUR ACM USERNAME/registration.log\" in registration/application/config/config.php</li>";
       $fail = true;
     }
+    $message .= "</ul><br/>";
+   
+    $message .= "Make sure to untrack your configuration files in git like this: <code>git update-index --assume-unchanged registration/application/config/config.php</code>  <code>git update-index --assume-unchanged registration/application/config/database.php</code>.  You do not want to commit passwords to github.<p/>";
     
-    $message .= "</ul><br/>If you need help getting started, please e-mail acm@cs.umn.edu.";
+    $message .= "If you need help getting started, please e-mail acm@cs.umn.edu.";
     if ( $fail == true ) {
       die($message);
     }
+    
+
   }
 }
 
