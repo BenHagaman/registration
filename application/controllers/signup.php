@@ -42,6 +42,17 @@ class Signup extends CI_Controller {
 		}
 	}
 
+	function student_id_check($str) {
+		$value = preg_match("/^\d{7}$/", $str);
+		$this->form_validation->set_message("student_id_check", "Student Id must be 7 digits long");
+		if ($value == 1) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
   function x500_check($x500) {
     if(isset($_SERVER['REMOTE_USER'])) {
       if ($x500 != $_SERVER['REMOTE_USER']) {
@@ -76,7 +87,7 @@ class Signup extends CI_Controller {
 			return false;
 		}
 
-    $ds = ldap_connect($this->config->item('ACM_LDAP_SERVER_URL'));
+    		$ds = ldap_connect($this->config->item('ACM_LDAP_SERVER_URL'));
 		ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
 		if($ds) {

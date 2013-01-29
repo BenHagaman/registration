@@ -9,7 +9,7 @@
 			array(
 				'field' => 'student_id',
 				'label' => 'Student ID',
-				'rules' => 'required'
+				'rules' => 'required|callback_student_id_check'
 			),
 			array(
 				'field' => 'ucard',
