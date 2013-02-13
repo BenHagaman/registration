@@ -70,6 +70,12 @@ class Signup extends CI_Controller {
 
 	function user_name_check($un) {
 
+ 		$value = preg_match("/^[a-zA-Z\d]{3,16}$/", $un);
+                $this->form_validation->set_message("user_name_check", "Usernames must be between 3-16 characters and consist of only letters and numbers (case sensitive)");
+                if ($value != 1) {
+                	return false;
+                }
+
 		$this->load->model('User_model', 'users');
 		$res_query = $this->db->query("SELECT COUNT(*) as ct from reserved_names WHERE user_name = ?", array(strtolower($un)));
 		$res_row = $res_query->row();
